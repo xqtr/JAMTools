@@ -53,9 +53,8 @@ Begin
 End;
 
 
-Procedure ExportMsg(BID,MID:Integer; FEName:String);
+Procedure ExportMsg(BID,MID:Integer);
 Var
-  FE        : File of Byte;
   BF        : File of Byte;
   MBase     : RecMessageBase;
   MsgBase   : PMsgBaseABS;
@@ -65,12 +64,11 @@ Var
 Begin
   If SaveToFile Then Begin
     Assign(OutF,SaveFile);
-    Rewrite(OutF);
+    ReSet(OutF);
   End;
   
   If Not GetMBaseByIndex(BID,MBase) Then Begin
     Writeln('Message Base, Not Found!!!');
-    Readkey;
     Exit;
   End;
 
@@ -89,7 +87,7 @@ Begin
   MsgBase^.SeekFirst(MID);
     
     
-  If MsgBase^.SeekFound Then Begin
+  If MsgBase^.SeekFound And (Not MsgBase^.IsDeleted) Then Begin
     MsgBase^.MsgStartUp;
     MsgBase^.MsgTxtStartUp;
     
@@ -138,13 +136,16 @@ End;
 
 Procedure Show_Help;
 Begin
-  WriteLn ('Usage: Jammsg_exp <Base_ID> <Msg_ID> [-o <Output_File>] [-h]');
+  WriteLn ('Usage: Jammsg_exp <Base_ID> <Msg_ID> [Msg_ID_Last] [-o <Output_File>] [-h]');
   WriteLn;
-  WriteLn;
-  WriteLn ('<Base_ID>        Mystic Base ID Number');
-  WriteLn ('<Msg_ID>         Message ID Number');
-  WriteLn ('-o <Output_File> Save output to file');
-  WriteLn ('-h               Display Msg Header also');
+  WriteLn ('  <Base_ID>        Mystic Base ID Number');
+  WriteLn ('  <Msg_ID>         Message ID Number');
+  WriteLn ('  -o <Output_File> Save output to file');
+  WriteLn ('  -m               Display Msg Header also');
+  WriteLn ('  Msg_ID_Last      If added, it will display all messages from');
+  WriteLn ('                   Msg_ID to Msg_ID_Last.');
+  Writeln;
+  Writeln ('Open Source - GPL3 - github.com/xqtr/jamtools');
   Writeln;
 End;
 
@@ -168,7 +169,11 @@ Begin
   End;
   
   For i := 1 To ParamCount Do Begin
-    If StrUpper(ParamStr(i)) = '-H' Then ShowHeader:=True;
+    If (StrUpper (Paramstr(i)) = '-H') Or (StrUpper (Paramstr(i)) = '-?') Or (StrUpper (Paramstr(i)) = '--HELP')Then Begin
+      Show_Help;
+      Halt(0);
+    End;
+    If StrUpper(ParamStr(i)) = '-M' Then ShowHeader:=True;
     If StrUpper(Paramstr(i)) = '-O' Then Begin
       If FileExist(ParamStr(i+1)) Then Begin
         WriteLn('Output file exists. If you continue, it will overwritten.');
@@ -184,11 +189,15 @@ Begin
   Try
     StrS2I(paramstr(1));
     Strs2i(paramstr(2));
+    If Paramstr(3) <> '' Then StrS2I(Paramstr(3));
   Except
     WriteLn('Wrong parameter value...');
     Halt(2);
   End;
   
-  ExportMsg(StrS2I(paramstr(1)),Strs2i(paramstr(2)),paramstr(3));
+  If (ParamStr(3)<>'') And (StrS2I(ParamStr(3)) > StrS2I(Paramstr(2))) Then Begin
+    For i := StrS2I(Paramstr(2)) To StrS2I(Paramstr(3)) Do ExportMsg(StrS2I(paramstr(1)),i);
+  End Else
+    ExportMsg(StrS2I(paramstr(1)),Strs2i(paramstr(2)));
   
 End.

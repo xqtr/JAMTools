@@ -143,6 +143,7 @@ Begin
     
     S:= S + StrI2S(MBase.Index)+';';
     S:= S + MBase.Name+';';
+     S:= S + MBase.EchoTag+';';
     S:= S + MBase.Filename+';';
     S:= S + MBase.Path+';';
     S:= S + StrI2S(MsgBase^.GetHighMsgNum)+';';
@@ -167,7 +168,9 @@ Begin
   WriteLn ('-o <Output_File>  Save output to file');
   Writeln;
   WriteLn ('The output has the following format:');
-  Writeln ('Index;Name;Filename;Path;HighMsgNum;NumberOfMsgs');
+  Writeln ('Index;Name;EchoTag;Filename;Path;HighMsgNum;NumberOfMsgs');
+  Writeln;
+  Writeln ('Open Source - GPL3 - github.com/xqtr/jamtools');
   Writeln;
 End;
 
@@ -186,6 +189,10 @@ Begin
   Close (ConfigFile);
 
   For i := 1 To ParamCount Do Begin
+    If (StrUpper (Paramstr(i)) = '-H') Or (StrUpper (Paramstr(i)) = '-?') Or (StrUpper (Paramstr(i)) = '--HELP')Then Begin
+      Show_Help;
+      Halt(0);
+    End;
     If StrUpper(Paramstr(i)) = '-O' Then Begin
       If FileExist(ParamStr(i+1)) Then Begin
         WriteLn('Output file exists. If you continue, it will overwritten.');

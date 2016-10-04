@@ -152,7 +152,7 @@ Begin
         
         If ShowBody Then 
           If SaveToFile Then Begin
-            Write(OutF,StrRep('#',76),'EOM');
+            WriteLn(OutF,StrRep('#',76),'EOM');
           End Else Begin
             WriteLn(StrRep('#',76),'EOM');
           End;
@@ -172,9 +172,11 @@ Begin
   WriteLn;
   WriteLn ('<Base>             Mystic Base ID Number Or Exact Name');
   WriteLn ('-o <Output_File>   Save Output to File');
-  WriteLn ('-h1                Display Msg Headers in Mystic Format');
-  WriteLn ('-h2                Display Msg Headers in CSV Format');
+  WriteLn ('-m1                Display Msg Headers in Mystic Format');
+  WriteLn ('-m2                Display Msg Headers in CSV Format');
   WriteLn ('-b                 Display Msg Body');
+  Writeln;
+  Writeln ('Open Source - GPL3 - github.com/xqtr/jamtools');
   Writeln;
 End;
 
@@ -198,7 +200,11 @@ Begin
   End;}
 
   For i := 1 To ParamCount Do Begin
-    If StrUpper(ParamStr(i)) = '-H2' Then ShowHeader:=True;
+    If (StrUpper (Paramstr(i)) = '-H') Or (StrUpper (Paramstr(i)) = '-?') Or (StrUpper (Paramstr(i)) = '--HELP')Then Begin
+      Show_Help;
+      Halt(0);
+    End;
+    If StrUpper(ParamStr(i)) = '-M2' Then ShowHeader:=True;
     If StrUpper(ParamStr(i)) = '-B' Then ShowBody:=True;
     If StrUpper(Paramstr(i)) = '-O' Then Begin
       If FileExist(ParamStr(i+1)) Then Begin

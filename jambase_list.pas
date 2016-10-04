@@ -210,10 +210,7 @@ Begin
     S := '';
     //WriteLn(StrI2S(TempBase.Index)+' '+TempBase.Name+' '+Jos(TempBase.BaseType)+' '+TempBase.Path + TempBase.FileName);
     
-    If ParamCount < 1 Then begin
-      S := Format('%3d %-20s %48s',[TempBase.Index,TempBase.Name,TempBase.Path + TempBase.FileName]);
-    End Else Begin
-      For i := 1 To ParamCount Do Begin
+     For i := 1 To ParamCount Do Begin
         If StrUpper(ParamStr(i)) = 'NAME' Then S := S + ';' + TempBase.NAME;    
         If StrUpper(ParamStr(i)) = 'QWKNAME' Then S := S + ';' + TempBase.QWKNAME;
         If StrUpper(ParamStr(i)) = 'NEWSNAME' Then S := S + ';' + TempBase.NEWSNAME;
@@ -251,7 +248,7 @@ Begin
         If StrUpper(ParamStr(i)) = 'QWKCONFID' Then S := S + ';' + StrI2S(TempBase.QWKCONFID);
       End;
       Delete(S,1,1);
-    End;
+    
     
     If Not SaveToFile Then
       WriteLn(S)
@@ -278,8 +275,11 @@ Begin
   Writeln('  [Index] [Flags] [Created] [EchoTag] [QwkNetID] [QwkConfID] [Res]');
   WriteLn;
   WriteLn('  Seperate each field with a space.');
+  WriteLn('  Example: jambase_list name filename path');
   WriteLn;
   WriteLn ('-o <Output_File>   Save output to file');
+  Writeln;
+  Writeln ('Open Source - GPL3 - github.com/xqtr/jamtools');
   Writeln;
 End;
 
@@ -298,6 +298,10 @@ Begin
   Close (ConfigFile);
 
   For i := 1 To ParamCount Do Begin
+    If (StrUpper (Paramstr(i)) = '-H') Or (StrUpper (Paramstr(i)) = '-?') Or (StrUpper (Paramstr(i)) = '--HELP')Then Begin
+      Show_Help;
+      Halt(0);
+    End;
     If StrUpper(Paramstr(i)) = '-O' Then Begin
       If FileExist(ParamStr(i+1)) Then Begin
         WriteLn('Output file exists. If you continue, it will overwritten.');
@@ -308,6 +312,11 @@ Begin
       SaveToFile := True;
       SaveFile   := Paramstr(i+1);
     End;
+  End;
+  
+  If ParamCount < 1 Then Begin
+    Show_Help;
+    Halt(0);
   End;
   
   ListMBases;
