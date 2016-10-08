@@ -1,11 +1,5 @@
 Program JamMsg_Exp;
 
-// post a text file to msg base?
-// auto mass upload
-// export AREAS.BBS?
-// import FIDONET.NA
-// .TIC stuff?
-
 {$I M_OPS.PAS}
 
 Uses
@@ -62,11 +56,10 @@ Var
   i         : Integer = 0;
   OutF      : Text;
 Begin
-  If SaveToFile Then Begin
-    Assign(OutF,SaveFile);
-    ReSet(OutF);
-  End;
+
+  // writeln('>>> '+stri2s(bid));
   
+    
   If Not GetMBaseByIndex(BID,MBase) Then Begin
     Writeln('Message Base, Not Found!!!');
     Exit;
@@ -85,7 +78,12 @@ Begin
   End;
   
   MsgBase^.SeekFirst(MID);
-    
+
+ // Writeln('<>> '+savefile);
+  If SaveToFile Then Begin
+    Assign(OutF,SaveFile);
+    ReWrite(OutF);
+  End;
     
   If MsgBase^.SeekFound And (Not MsgBase^.IsDeleted) Then Begin
     MsgBase^.MsgStartUp;
